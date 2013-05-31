@@ -1,13 +1,13 @@
-library(micromaps)
+library(micromap)
 
 #Begin code for Figure 1 examples of education and poverty
 ### intial example
 data("edPov")
-data("statesShapefile")
+data("USstates")
 
-head(statesShapefile@data )
+head(USstates@data )
 
-statePolys <- create_map_table(statesShapefile, 'ST')
+statePolys <- create_map_table(USstates, 'ST')
 head(statePolys)
 
 

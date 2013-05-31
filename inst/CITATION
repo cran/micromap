@@ -4,11 +4,11 @@ citEntry(
    entry="Manual",
    title="micromap: Linked Micromap Plots",
    author="Quinn Payton and Anthony R. Olsen",
-   year=2012,
-   note="R package version 1.5",
+   year=2013,
+   note="R package version 1.6",
    url="http://www.epa.gov/nheerl/arm/",
    textVersion=paste("Payton, Q. and Olsen, A. R. (2012).",
                       "micromap: Linked Micromap Plots.",
-                      "R package version 1.5.",
+                      "R package version 1.6.",
                       "URL: http://www.epa.gov/nheerl/arm/.")
 )

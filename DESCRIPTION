@@ -1,6 +1,6 @@
 Package: micromap
-Version: 1.5
-Date: 2012-12-18
+Version: 1.6
+Date: 2013-05-31
 Title: Linked Micromap Plots
 Authors@R: c(person("Quinn", "Payton", role="aut", email =
         "Payton.Quinn@epa.gov"), person("Tony", "Olsen", role="aut",
@@ -19,6 +19,7 @@ Description: This group of functions simplifies the creation of linked
         micromap plots.
 License: GPL (>= 2)
 URL: http://www.epa.gov/nheerl/arm/
-Packaged: 2012-12-18 18:30:55 UTC; tkincaid
+Packaged: 2013-05-31 19:11:57 UTC; tkincaid
+NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2012-12-19 09:08:11
+Date/Publication: 2013-05-31 23:03:40
