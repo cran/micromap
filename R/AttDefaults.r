@@ -24,12 +24,21 @@ standard_att <- function(show=FALSE) list(
   graph.bgcolor=NA,
   graph.border.color='black',
 
+
   xaxis.line.display=as.logical(TRUE),
   xaxis.ticks.display=as.logical(FALSE),
   xaxis.ticks=NA,
+
   xaxis.labels=NA,
+  xaxis.labels.size=1,
+  xaxis.labels.angle=NULL,
+  xaxis.labels.hjust=NULL,
+  xaxis.labels.vjust=NULL,
+
   xaxis.text.display=as.logical(TRUE),
   xaxis.title=NA,
+  
+
   	xaxis.title.size=1,
 	xaxis.title.color='black',
 	xaxis.title.face='plain',
@@ -41,6 +50,7 @@ standard_att <- function(show=FALSE) list(
   yaxis.line.display=as.logical(FALSE),
   yaxis.ticks.display=as.logical(FALSE),
   yaxis.text.display=as.logical(FALSE),
+
   yaxis.title=NA,
   yaxis.ticks=NA,
   yaxis.labels=NA
@@ -84,6 +94,26 @@ ranks_att <- function(show=FALSE) {
  }
 
 
+
+#*** dot legend ***#
+dot_legend_att <- function(show=FALSE) {
+  tmp.att <- append(standard_att(), 
+				list(point.size=as.numeric(1.2), 
+				  	point.type=as.numeric(19),
+					point.border=as.logical(TRUE)))
+
+	tmp.att$xaxis.text.display = FALSE
+	tmp.att$xaxis.line.display = FALSE
+
+	tmp.att$graph.border.color = "white"
+	tmp.att$graph.grid.major = FALSE
+
+
+  if(show) tmp.att else invisible(tmp.att)
+ }
+
+
+
 #*** dot ***#
 dot_att <- function(show=FALSE) {
   tmp.att <- append(standard_att(), 
@@ -99,7 +129,12 @@ dot_att <- function(show=FALSE) {
 					add.line=NA,
 					add.line.col='black',
 					add.line.typ='longdash',
-					add.line.size=1))
+					add.line.size=1,
+					
+					connected.dots = F,
+	        			connected.col = gray(.6), 
+	        			connected.typ = "solid", 
+					connected.size = as.numeric(.5)))
 
   if(show) tmp.att else invisible(tmp.att)
  }
@@ -122,7 +157,12 @@ dot_cl_att <- function(show=FALSE) {
 					add.line=NA,
 					add.line.col='black',
 					add.line.typ='longdash',
-					add.line.size=1))
+					add.line.size=1,
+					
+					connected.dots = F,
+	        			connected.col = gray(.6), 
+	        			connected.typ = "solid", 
+					connected.size = as.numeric(.5)))
 
 
   if(show) tmp.att else invisible(tmp.att)
@@ -192,10 +232,30 @@ box_summary_att <- function(show=FALSE) {
 #*** map ***#
 map_att <- function(show=FALSE) {
   tmp.att <- append(standard_att(),
-			list(active.border.color='black',
+			list(fill.regions="aggregate",
+				map.all=F, 
+
+				outer.hull = F,
+				outer.hull.color='black',
+				outer.hull.size=1,
+
+				active.border.color='black',
 				active.border.size=1,
+
+				inactive.fill='lightgray',
 				inactive.border.color=gray(.25),
-				inactive.border.size=1))
+				inactive.border.size=1,
+
+				withdata.fill='white',
+				withdata.border.color=gray(.75),
+				withdata.border.size=1,
+
+				median.fill=gray(.5),
+
+				nodata.fill='white',
+				nodata.border.color='white',
+				nodata.border.size=1
+				))
 
   tmp.att$graph.grid.major=as.logical(FALSE)
   tmp.att$xaxis.line.display=as.logical(FALSE)

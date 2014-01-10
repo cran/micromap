@@ -37,7 +37,7 @@ lmgroupedplot <- function(stat.data, map.data, 		# Required -- statistical data;
   plot.grp.spacing=1,
   plot.panel.spacing=1,
   plot.panel.margins=c(0,0,1,0)
-) {					### end function arguments list
+){					### end function arguments list
 
   # rename function inputs (for ease in coding)
 dStats <- stat.data
@@ -148,6 +148,12 @@ if(any(panel.types=='map')){
   w <- match(mapDF[,map.link[2]], tmpDF[,map.link[1]])
   mapDF <- cbind(pGrp=tmpDF[w,'pGrp'], mapDF)
   mapDF$pGrp <- as.numeric(mapDF$pGrp)
+  nYrows <- max(abs(DF$pGrpOrd))
+
+    # change coordinates to align properly with other panels
+  yRedFact <- diff(range(mapDF$coordsy))/nYrows
+  mapDF$coordsy <- (mapDF$coordsy - min(mapDF$coordsy))/diff(range(mapDF$coordsy)) * nYrows
+  mapDF$coordsx <- (mapDF$coordsx - min(mapDF$coordsx))/yRedFact 
 
   
   rm(tmpDF, dMap)
@@ -206,16 +212,25 @@ lmLayout <- grid.layout(nrow = 1, ncol = length(lwidth),
 # *** creates final LM from plot objects
 if(right(print.file,4)=='.pdf') 	pdf(print.file, width = plot.width, height = plot.height)
 if(right(print.file,5)=='.tiff') 	tiff(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
+if(right(print.file,5)=='.tif') 	tiff(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
 if(right(print.file,5)=='.jpeg') 	jpeg(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
 if(right(print.file,4)=='.jpg') 	jpeg(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
-if(right(print.file,5)=='.png') 	png(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
-if(!right(print.file,4) %in% c('.pdf','tiff','jpeg','.png')) x11(width=plot.width, height=plot.height)
+if(right(print.file,4)=='.png') 	png(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
+if(right(print.file,3)=='.ps') 		postscript(print.file, width = plot.width, height = plot.height)
+recognized.print.type <- right(print.file,3) %in% right(c('.pdf','.tiff','.tif','.jpeg','.jpg','.png','.ps'),3)
+if(!recognized.print.type){
+  if(.Platform$OS.type == "windows") options(device="windows")
+	dev.new(width=plot.width, height=plot.height)
+}
+if(!print.file=="no" & !recognized.print.type) print("Warning: printing file type not recognized")
+
 
 grid.newpage()
 pushViewport(viewport(layout = lmLayout))
 suppressWarnings(for(p in 1:nPanels) print(plots[[p]], vp = subplot(1, p*2)))
 
-if(right(print.file,4)%in%c('.pdf','tiff','jpeg','.png')) dev.off()
+if(recognized.print.type) dev.off()
+
 
 invisible(plots)
 

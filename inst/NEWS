@@ -3,6 +3,17 @@ NEWS                                                    R Documentation
 micromap News
 
 
+CHANGES IN micromap VERSION 1.7 (Released 2014-01-10)
+
+NEW FEATURES
+
+         • Added shading options for micromaps.
+
+BUG FIXES
+
+         • None.
+
+
 CHANGES IN micromap VERSION 1.6 (Released 2013-05-31)
 
 NEW FEATURES

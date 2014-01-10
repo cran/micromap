@@ -94,7 +94,7 @@ ranks_build <- function(pl, p, DF, att){
 
 	    tmp.median.limsy <- att[[p]]$text.size*c(-1.5,-.5)
 	  }
-
+	
 	  #################################
 	  #################################
 
@@ -114,8 +114,58 @@ ranks_build <- function(pl, p, DF, att){
 
 
 
+dot_legend_build <- function(pl, p, DF, att){ 
+	DF$tmp.data <- rep(0, nrow(DF))
+
+	tmp.limsy <- -(range(DF$pGrpOrd) + c(-1,1) * .5)
+	tmp.limsx <- c(-.5,.5)
+
+	ncolors <- length(att$colors)
+
+	  #################################
+	  #################################
+	  #*** insert space for median row	
+	  tmp.median.limsy <- NULL
+
+	  if(att$median.row) {
+	    if(!any(DF$median)) DF <- rbind(DF, transform(DF[1,], pGrpOrd=1, pGrp=att$m.pGrp, median=TRUE, 
+							rank='', tmp.data=0))
+
+	    DF$color[DF$median] <- ncolors
+	    tmp.median.limsy <- c(-.5, -1.5)
+	  }
+
+	  #################################
+	  #################################
+
+
+	pl <- ggplot(DF) 
+
+	if(att[[p]]$point.border) pl <- pl + geom_point(aes(x=tmp.data, y=-pGrpOrd), 
+									colour='black',
+									size=att[[p]]$point.size*2.5, 
+									pch=att[[p]]$point.type)
+
+	pl <- pl + 
+		geom_point(aes(x=tmp.data, y=-pGrpOrd, colour=factor(color)), 
+				size=att[[p]]$point.size*2, pch=att[[p]]$point.type) +
+	     	facet_grid(pGrp~., scales="free_y", space="free") +
+		scale_colour_manual(values=att$colors, guide='none') 
+
+	pl <- plot_opts(p, pl, att)		
+	pl <- graph_opts(p, pl, att)		
+	pl <- axis_opts(p, pl, att, limsx=tmp.limsx, limsy=c(tmp.limsy,tmp.median.limsy))
+
+	pl
+}
+
+
+
 dot_build <- function(pl, p, DF, att){ 
 	DF$tmp.data <- DF[,unlist(att[[p]]$panel.data)]
+	DF$tmp.data1 <- DF[,unlist(att[[p]]$panel.data)]
+	DF$tmp.data2 <- c(0, DF$tmp.data1[-nrow(DF)])
+	DF$tmp.data3 <- DF$pGrpOrd - 1
 
 	tmp.limsx <- range(DF[,unlist(att[[p]]$panel.data)], na.rm=T)
 	if(any(!is.na(att[[p]]$xaxis.ticks))) tmp.limsx <- range(c(tmp.limsx, att[[p]]$xaxis.ticks))
@@ -145,22 +195,6 @@ dot_build <- function(pl, p, DF, att){
 
 	pl <- ggplot(DF) 
 
-	if(att[[p]]$point.border) pl <- pl + geom_point(aes(x=tmp.data, y=-pGrpOrd), 
-									colour='black',
-									size=att[[p]]$point.size*2.5, 
-									pch=att[[p]]$point.type)
-
-	pl <- pl + 
-		geom_point(aes(x=tmp.data, y=-pGrpOrd, colour=factor(color)), 
-				size=att[[p]]$point.size*2, pch=att[[p]]$point.type) +
-	     	facet_grid(pGrp~., scales="free_y", space="free") +
-		scale_colour_manual(values=att$colors, guide='none') 
-
-	if(att[[p]]$median.line) pl <- pl + geom_vline(aes(xintercept = median(tmp.data)), data=DF, 
-							colour=att[[p]]$median.line.col, 
-							linetype = att[[p]]$median.line.typ, 
-							size = att[[p]]$median.line.size)
-
 	if(!any(is.na(att[[p]]$add.line))){
 		if(length(att[[p]]$add.line.col)==1) att[[p]]$add.line.col <- rep(att[[p]]$add.line.col[1], length(att[[p]]$add.line))
 		if(length(att[[p]]$add.line.typ)==1) att[[p]]$add.line.typ <- rep(att[[p]]$add.line.typ[1], length(att[[p]]$add.line))
@@ -172,6 +206,28 @@ dot_build <- function(pl, p, DF, att){
 										size=att[[p]]$add.line.size[j])
 	  }
 
+	if(att[[p]]$median.line) pl <- pl + geom_vline(aes(xintercept = median(tmp.data)), data = DF, 
+							colour = att[[p]]$median.line.col, 
+							linetype = att[[p]]$median.line.typ, 
+							size = att[[p]]$median.line.size)	
+
+	if(att[[p]]$connected.dots) pl <- pl + geom_segment(aes(x = tmp.data1, y = -pGrpOrd,
+								xend = tmp.data2, yend = -tmp.data3),
+							data = subset(DF, pGrpOrd>1), 
+			            			colour = att[[p]]$connected.col,
+							size = att[[p]]$connected.size, 
+					            	linetype = att[[p]]$connected.typ)   
+
+	if(att[[p]]$point.border) pl <- pl + geom_point(aes(x=tmp.data, y=-pGrpOrd), 
+									colour='black',
+									size=att[[p]]$point.size*2.5, 
+									pch=att[[p]]$point.type)
+
+	pl <- pl + 
+		geom_point(aes(x=tmp.data, y=-pGrpOrd, colour=factor(color)), 
+				size=att[[p]]$point.size*2, pch=att[[p]]$point.type) +
+	     	facet_grid(pGrp~., scales="free_y", space="free") +
+		scale_colour_manual(values=att$colors, guide='none') 
 
 	pl <- plot_opts(p, pl, att)		
 	pl <- graph_opts(p, pl, att)		
@@ -187,6 +243,9 @@ dot_cl_build <- function(pl, p, DF, att){
 	DF$tmp.data1 <- DF[,att[[p]]$panel.data[[1]]]
 	DF$tmp.data2 <- DF[,att[[p]]$panel.data[[2]]]
 	DF$tmp.data3 <- DF[,att[[p]]$panel.data[[3]]]
+
+	DF$tmp.data4 <- c(0, DF$tmp.data1[-nrow(DF)])
+	DF$tmp.data5 <- DF$pGrpOrd - 1
 
 	tmp.limsx <- range(DF[,unlist(att[[p]]$panel.data)], na.rm=T)
 	if(any(!is.na(att[[p]]$xaxis.ticks))) tmp.limsx <- range(c(tmp.limsx, att[[p]]$xaxis.ticks))
@@ -217,17 +276,6 @@ dot_cl_build <- function(pl, p, DF, att){
 	pl <- ggplot(DF) +
 		geom_segment(aes(x=tmp.data2, y=-pGrpOrd, xend=tmp.data3, yend=-pGrpOrd, 
 				colour=factor(color)), size=att[[p]]$line.width) 
-   
-  	if(att[[p]]$point.border) pl <- pl + geom_point(aes(x=tmp.data1, y=-pGrpOrd), 
-									size=att[[p]]$point.size*2.5, 
-									pch=att[[p]]$point.type,
-									data=DF)
-
-	pl <- pl + 
-		geom_point(aes(x=tmp.data1, y=-pGrpOrd, colour=factor(color)), 
-				size=att[[p]]$point.size*2, pch=att[[p]]$point.type) +
-	     	facet_grid(pGrp~., scales="free_y", space="free") +
-		scale_colour_manual(values=att$colors, guide='none') 
 
 
 	if(att[[p]]$median.line) pl <- pl + geom_vline(aes(xintercept = median(tmp.data)), data=DF, 
@@ -245,6 +293,25 @@ dot_cl_build <- function(pl, p, DF, att){
 										linetype=att[[p]]$add.line.typ[j],
 										size=att[[p]]$add.line.size[j])
 	  }
+
+
+	if(att[[p]]$connected.dots) pl <- pl + geom_segment(aes(x = tmp.data1, y = -pGrpOrd,
+								xend = tmp.data4, yend = -tmp.data5),
+							data = subset(DF, pGrpOrd>1), 
+			            			colour = att[[p]]$connected.col,
+							size = att[[p]]$connected.size, 
+					            	linetype = att[[p]]$connected.typ)   
+   
+  	if(att[[p]]$point.border) pl <- pl + geom_point(aes(x=tmp.data1, y=-pGrpOrd), 
+									size=att[[p]]$point.size*2.5, 
+									pch=att[[p]]$point.type,
+									data=DF)
+
+	pl <- pl + 
+		geom_point(aes(x=tmp.data1, y=-pGrpOrd, colour=factor(color)), 
+				size=att[[p]]$point.size*2, pch=att[[p]]$point.type) +
+	     	facet_grid(pGrp~., scales="free_y", space="free") +
+		scale_colour_manual(values=att$colors, guide='none') 
 
 	pl <- plot_opts(p, pl, att)		
 	pl <- graph_opts(p, pl, att)		
@@ -270,14 +337,14 @@ bar_build <- function(pl, p, DF, att){
 	  #################################
 	  #*** insert space for median row	
 	  tmp.median.limsy <- NULL
--
+
 	  if(att$median.row) {
 	    if(!any(DF$median)) DF <- rbind(DF, transform(DF[1,], pGrpOrd=ncolors+1, pGrp=att$m.pGrp, median=TRUE, rank='', 
 								tmp.data=median(DF$tmp.data)))
 	
 	 
 	    DF$color[DF$median] <- ncolors
-	    tmp.median.limsy <- c(0, -2)
+	    tmp.median.limsy <- c(-.5, -1.5)
 	  }
 
 	  #################################
@@ -332,6 +399,7 @@ bar_cl_build <- function(pl, p, DF, att){
 	tmp.limsx <- tmp.limsx + c(-.001,.05) * diff(tmp.limsx)
 	tmp.limsy <- -(range(DF$pGrpOrd) + c(-1,1) * .5)
 
+
 	ncolors <- length(att$colors)
 	  #################################
 	  #################################
@@ -346,7 +414,7 @@ bar_cl_build <- function(pl, p, DF, att){
 	
 	 
 	    DF$color[DF$median] <- ncolors
-	    tmp.median.limsy <- c(0, -2)
+	    tmp.median.limsy <- c(-.5, -1.5)
 	  }
 
 	  #################################
@@ -425,7 +493,7 @@ box_summary_build <- function(pl, p, DF, att){
 	
 	 
 	    DF$color[DF$median] <- ncolors
-	    tmp.median.limsy <- c(0, -2)
+	    tmp.median.limsy <- c(-.5, -1.5)	# c(0, -2)
 	  }
 
 	  #################################

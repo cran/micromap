@@ -9,15 +9,15 @@
   statistical summary displays; differentianted by color.
 }
 \usage{
-lmplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
+lmplot(stat.data, map.data=NULL, panel.types, panel.data, map.link=NULL,
   nPanels=length(panel.types), ord.by, rev.ord=FALSE, grouping,
-  colors=brewer.pal(max(grouping), "Spectral"), map.all=FALSE,
-  map.color2="lightgray", median.row=FALSE, two.ended.maps=FALSE,
+  median.row= FALSE, median.color=gray(.5), colors=brewer.pal(max(grouping),
+  "Spectral"), map.all=FALSE, map.color2="lightgray", two.ended.maps=FALSE,
   print.file="no", print.res=300, panel.att=vector("list", nPanels),
-  plot.header=NA, plot.header.size=NA, plot.header.color=NA,
-  plot.footer=NA, plot.footer.size=NA, plot.footer.color=NA,
-  plot.width=7, plot.height=7, map.spacing=1, plot.pGrp.spacing=1,
-  plot.panel.spacing=1, plot.panel.margins=c(0,0,1,0))
+  plot.header=NA, plot.header.size=NA, plot.header.color=NA, plot.footer=NA,
+  plot.footer.size=NA, plot.footer.color=NA, plot.width=7, plot.height=7,
+  map.spacing=1, plot.pGrp.spacing=1, plot.panel.spacing=1,
+  plot.panel.margins=c(0,0,1,0))
 
 lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   nPanels=length(panel.types), grp.by, cat, colors=brewer.pal(10, "Spectral"),
@@ -64,6 +64,15 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   be a single number to have the same numer in each group or a vector of numbers
   for unequal groupings.
   }
+  \item{median.row}{
+  specifies whether a median row should be included.  If an odd number of data
+  lines are supplied, a data line itself will be used as the median, otherwise
+  median entries will be calculated from the supplied data. Note that without a
+  median row maps are forced into proper size.
+  }
+  \item{median.color}{
+  specifies color of the median row.
+  }
   \item{cat}{
   category column within stats table for a categorization type lmplot.
   }
@@ -82,12 +91,6 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   }
   \item{map.color2}{
   the color to fill in previously displayed polygons.
-  }
-  \item{median.row}{
-  specifies whether a median row should be included.  If an odd number of data
-  lines are supplied, a data line itself will be used as the median, otherwise
-  median entries will be calculated from the supplied data. Note that without a
-  median row maps are forced into proper size.
   }
   \item{two.ended.maps}{
   the resulting micromaps will highlight previously referenced polygons (see
@@ -151,13 +154,134 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
 \value{
   A list of ggplot2 objects with entries for each individual panel.
 }
+\note{
+  See the Introduction Guide for a full list of the options available for
+  altering micromaps.
+}
 \author{
   Quinn Payton \email{Payton.Quinn@epa.gov}
 }
 \examples{
+# intial example
 data("USstates")
 head(USstates@data )
 statePolys <- create_map_table(USstates, 'ST')
 head(statePolys)
+
+\dontrun{
+data("edPov")
+
+# basic figure 1
+lmplot(stat.data=edPov,
+  	map.data=statePolys,
+	panel.types=c('labels', 'dot', 'dot','map'),
+	panel.data=list('state','pov','ed', NA),
+	ord.by='pov',   
+	grouping=5, median.row=TRUE,
+	map.link=c('StateAb','ID'))
+
+# publication figure 1a
+lmplot(stat.data=edPov,  map.data=statePolys ,
+	panel.types=c('labels', 'dot', 'dot','map'),
+	panel.data=list('state','pov','ed', NA),
+	ord.by='pov',  
+	grouping=5, 
+  	median.row=TRUE,
+	map.link=c('StateAb','ID'),
+	
+  	plot.height=9,							
+	colors=c('red','orange','green','blue','purple'), 
+	map.color2='lightgray',
+       
+	panel.att=list(list(1, header='States', panel.width=.8, align='left', text.size=.9),
+			list(2, header='Percent Living Below \n Poverty Level',
+				graph.bgcolor='lightgray', point.size=1.5,
+				xaxis.ticks=list(10,15,20), xaxis.labels=list(10,15,20),
+				xaxis.title='Percent'),
+			list(3, header='Percent Adults With\n4+ Years of College',
+				graph.bgcolor='lightgray', point.size=1.5,
+				xaxis.ticks=list(0,20,30,40), xaxis.labels=list(0,20,30,40),
+				xaxis.title='Percent'),
+			list(4, header='Light Gray Means\nHighlighted Above',  
+				inactive.border.color=gray(.7), inactive.border.size=2,	
+				panel.width=.8)))
+
+edPov$points <- 0	
+
+# publication figure 1b
+lmplot (stat.data=edPov, map.data=statePolys,
+	panel.types=c('dot',  'labels', 'dot', 'dot', 'map'),
+	panel.data=list('points', 'state', 'pov', 'ed', NA),
+	map.link=c('StateAb','ID'),
+	ord.by='pov', 
+	grouping=5, 
+	median.row=TRUE, 
+	
+	plot.height=9, 
+	
+	colors=c('red','orange','green','blue','purple'),
+	map.color2='lightgray', 
+
+	panel.att=list(list(1, panel.width=.15, point.type=20,
+					graph.border.color='white',
+					xaxis.text.display=FALSE, xaxis.line.display=FALSE,
+					graph.grid.major=FALSE),
+	
+				list(2, header='States', panel.width=.8, 
+					align='left', text.size=.9),
+
+				list(3, header='Percent Living Below\nPoverty Level',
+					graph.bgcolor='lightgray', point.size=1.5,
+					xaxis.ticks=list(10,15,20), xaxis.labels=list(10,15,20),
+					xaxis.title='Percent'),
+
+				list(4, header='Percent Adults With\n4+ Years of College',
+					graph.bgcolor='lightgray', point.size=1.5,
+					xaxis.ticks=list(20,30,40), xaxis.labels=list(20,30,40), 
+					xaxis.title='Percent'),
+	
+				list(5, header='Light Gray Means\nHighlighted Above', 
+					inactive.border.color=gray(.7), inactive.border.size=2, 
+					panel.width=.8)))
+
+# publication figure 1c
+myPlot <- lmplot(stat.data=edPov, map.data=statePolys,
+	panel.types=c('map', 'dot',  'labels', 'dot', 'dot'),
+	panel.data=list(NA, 'points', 'state', 'pov', 'ed'),
+	map.link=c('StateAb','ID'),
+	ord.by='pov', 
+	grouping=5, 
+	median.row=TRUE,
+
+	plot.height=9, 
+	
+	colors=c('red','orange','green','blue','purple'),
+	map.color2='lightgray', 
+
+	panel.att=list(list(2, panel.width=.15, point.type=20,
+				graph.border.color='white',
+				xaxis.text.display=FALSE, xaxis.line.display=FALSE,
+				graph.grid.major=FALSE),
+
+			list(3, header='States', panel.width=.8, 
+				align='left', text.size=.9),
+
+			list(4, header='Percent Living Below\nPoverty Level',
+				graph.bgcolor='lightgray', point.size=1.5,
+				xaxis.ticks=list(10,15,20), xaxis.labels=list(10,15,20),
+				xaxis.title='Percent'),
+
+			list(5, header='Percent Adults With\n4+ Years of College',
+				graph.bgcolor='lightgray', point.size=1.5,
+				xaxis.ticks=list(20,30,40), xaxis.labels=list(20,30,40), 
+				xaxis.title='Percent'),
+	
+			list(1, header='Light Gray Means\nHighlighted Above', 
+				inactive.border.color=gray(.7), inactive.border.size=2, 
+				panel.width=.8)))
+
+printLMPlot(myPlot, name='myExhibit.tiff', res=300)
+}
+
 }
 \keyword{hplot}

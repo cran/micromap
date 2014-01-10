@@ -1,14 +1,3 @@
-all_attsb <- function(a, att.name) as.logical(unlist(a)[which(att.name==names(unlist(a)))])
-make.string <- function(vct) {
-	rtn <- vct[1]
-	if (length(vct) > 1) for(i in 2:length(vct)) rtn <- paste(rtn, vct[i],sep=", ")
-	
-	rtn
-}
-
-
-
-
 ##########################
 ##### theme settings #####
 ##########################
@@ -94,6 +83,10 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	# many features are "hidden" by simply coloring the same color as the background so
 	#   if panel background is NA we assume "white" will effectively do the hiding
     bgcolor <- ifelse(!is.na(a[[i]]$panel.bgcolor), a[[i]]$panel.bgcolor, 'white')
+
+	# specify label size as maximum of all requested label sizes
+    label.size <- as.numeric(max(all_atts(a, 'xaxis.labels.size')))*10
+
 
       # limsy will sometimes be in the form (c(lower bound, upper bound, lower bound for the median , upper bound for the median))
 	#   if thats the case, we split it into the two seperate limits here
@@ -182,12 +175,20 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 
 	    # otherwise trys to "hide" axis text on this panel
 	  } else if (!a[[i]]$xaxis.text.display) {								
-		pl <- pl + theme(axis.text.x = element_text(colour=bgcolor))	
+		pl <- pl + theme(axis.text.x = element_text(colour=bgcolor, size=label.size))	
 
 	    # axis text will show and we'll add specific labels if requested
 	  } else if (!is.na(unlist(a[[i]]$xaxis.labels)[1]) & 
-				!is.na(unlist(a[[i]]$xaxis.ticks)[1])) { 						 
+				!is.na(unlist(a[[i]]$xaxis.ticks)[1])) { 	
+	
+	 	tmpTheme <- "theme(axis.text.x = element_text(size=label.size"
+		if(!is.null(a[[i]]$xaxis.labels.angle)) tmpTheme <- paste(tmpTheme, ", angle = ", a[[i]]$xaxis.labels.angle)
+		if(!is.null(a[[i]]$xaxis.labels.hjust)) tmpTheme <- paste(tmpTheme, ", hjust =", a[[i]]$xaxis.labels.hjust)
+		if(!is.null(a[[i]]$xaxis.labels.vjust)) tmpTheme <- paste(tmpTheme, ", vjust =", a[[i]]$xaxis.labels.vjust)
+		tmpTheme <- paste(tmpTheme, "))")
 
+		pl <- pl + eval(parse(text=tmpTheme	))
+		
 		x.breaks <- x.labels <- TRUE		
 		xstr.breaks <- paste(', breaks=c(', make.string(a[[i]]$xaxis.ticks),')',sep='')
 		xstr.labels <- paste(', labels=c(', make.string(a[[i]]$xaxis.labels),')',sep='')
@@ -199,8 +200,8 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 
 	   # otherwise text shows up as ggplot defaults
 	}
-
-
+ 
+ 
 	  # put it all together and execute the eval call
 	xstr <- paste("scale_x_continuous(", xstr.title)
 	if (x.expand) xstr <- paste(xstr, xstr.expand)
@@ -208,11 +209,11 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	if (x.labels) xstr <- paste(xstr, xstr.labels)
 	if (x.limits) xstr <- paste(xstr, xstr.limits)
 	xstr <- paste(xstr, ")")
-
+ 
 	pl <- pl + eval(parse(text=xstr))
-
-
-	
+ 
+ 
+ 	
     ##############
     ### Y axis ###   
     ##############
@@ -226,7 +227,7 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	
 
 	 ### axis text ###
-	if(a[[i]]$yaxis.ticks.display | a[[i]]$yaxis.text.display) ystr.breaks <- "" else ystr.breaks <- ", breaks=NA" 
+	if(a[[i]]$yaxis.ticks.display | a[[i]]$yaxis.text.display) ystr.breaks <- "" else ystr.breaks <- ", breaks=NULL" 
 
 
 	 ### axis limits and expansion ###
@@ -273,6 +274,9 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	pl
 
 }
+
+
+
 
 
 		

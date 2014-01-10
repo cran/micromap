@@ -1,35 +1,27 @@
-right <- function(txt, i)
-	substring(txt, nchar(txt)-i+1)
-
-
-all_atts <- function(a, att.name)
-	unlist(unlist(a)[which(att.name == names(unlist(a)))])
-
-
-all_equal2 <- function(v)
-	all(unlist(sapply(1:length(v), function(x) v[x] == v[x:length(v)])))
-
-
-subplot <- function(x, y)
-	viewport(layout.pos.row=x, layout.pos.col=y)
-
-
 #### Start of function ####
 
-lmplot <- function(stat.data, map.data, 	# Required -- statistical data; map data
+lmplot <- function(stat.data, map.data=NULL, 	# Required -- statistical data; map data
   panel.types, panel.data, 			# Required -- panel types (e.g. 'map', 'labels', 'dot.cl', etc.);
 							# 	which columns in dStats to get the data from
   map.link=NULL,					# Specify in a vector (e.g. "c('Subpopulation', 'Poly_Name')") the columns from
 							# 	dStats and dMap (respectively) to link the correct map to the correct data line
   nPanels=length(panel.types),		# A count of the number of panels (NOT MEANT TO ACTUALLY BE SPECIFIED BY USERS
-							# 	but is used referenced in this function arguments list
+							# 	but is referenced in this function arguments list
   ord.by, rev.ord=FALSE,						# Column of the stat table by which to rank and order the output
   grouping, 					# Required	-- specifies which column in dStats by which to rank and order the output;
-							# 	specifies the perceptual groups (e.g. "c(5,5,5,5,2)" to have 4 groups of 5 followed 
-							# 	by a single group of 2			
+  median.row=FALSE, 					#	specifies the perceptual groups (e.g. "c(5,5,5,5,2)" to have 4 groups of 5 followed 
+							# 	by a single group of 2	
+
+  median.color=gray(.5),	
   colors=brewer.pal(max(grouping), "Spectral"),	
-  map.all=FALSE, map.color2='lightgray',
-  median.row=FALSE, two.ended.maps=FALSE,
+
+  ## These 3 are legacy arguements that should now 
+  #### be specified within the panel att list
+  map.all=FALSE, 
+  map.color2='lightgray',
+  two.ended.maps=FALSE,
+  ############
+  ############
 
   print.file='no', print.res=300,
   
@@ -50,7 +42,7 @@ lmplot <- function(stat.data, map.data, 	# Required -- statistical data; map dat
   plot.pGrp.spacing=1,
   plot.panel.spacing=1,
   plot.panel.margins=c(0,0,1,0)
-) {					### end function arguments list
+){					### end function arguments list
 
 
   # rename function inputs (for ease in coding)	---- 
@@ -59,8 +51,9 @@ dMap <- map.data
 
 
 colors=colors[1:max(grouping)]	# errors can occur with a color list that is too long so we truncate 
-						#	it to only the number of colors needed for this plot
-if(median.row) colors <- c(colors, gray(.5))
+						 #	it to only the number of colors needed for this plot
+if(median.row) colors <- c(colors, median.color) # we add a color to be the color of the median polygon
+						 # 	this should probably be user specified in the future
 
 
 pps = plot.panel.spacing*.05
@@ -77,10 +70,10 @@ plot.atts <- list(
   			ord.by=ord.by, 
   			grouping=grouping, 
   			colors=colors,
-			map.color2=map.color2,
 			map.spacing=map.spacing*.025,
 			plot.width=plot.width,
-			plot.height=plot.height)			
+			plot.height=plot.height,
+			median.row=median.row)			
 
 
   # grab default attribute lists for each panel
@@ -94,18 +87,19 @@ a <- append(a, plot.atts)
 
 
   # panel data must be specified for every panel type so 
-  #	we acount for it here first
+  #	we include it in our attribute list here
 for(j in 1:length(panel.types)) a[[j]] <- append(a[[j]], list(panel.data=unlist(panel.data[[j]])))
  	
 
   # all additional specified attributes are now dealt with
-  # this loop through each sub list of the panel.att list, then loop through its entries, matching 
-  # 	the names with those in "a", and the stored values in "a" are replaced with the users inputs
+  # this loops through each sub list of the panel.att list, then loops through its entries, matching 
+  # 	the names with those in the "a" object. The stored values in "a" are replaced with the users inputs
 for(j in 1:length(panel.att)){	
     k <- unlist(panel.att[[j]][1], use.names=F)		# the first entry specifies which panel (i.e. which sublist) is being modified
 
     allnames <- names(panel.att[[j]])[-1]			# grab the names of the sublist entries
     for(s in allnames){	# s='header'
+
    	w <- match(s, names(a[[k]]))							# match the names to those in "a"
 	if(is.na(w)) w <- match(paste('panel.',s,sep=''), names(a[[k]]))	# the "panel." part of the attribute name is somewhat 
 												#	implies so a user may have left it off 
@@ -124,10 +118,31 @@ for(j in 1:length(panel.att)){
     
   }
 
-  # warnings for various entry differences that might screw up vertical alignment among panels:
+
+  ### There are several artifact map arguments that can 
+  ###   be translated to the new way of doing things
+  if(any(panel.types=='map')){
+	ww <- which(panel.types=='map')
+	if(map.all==T) a[[ww]]$map.all <- T
+ 	if(!map.color2=='lightgray') a[[ww]]$inactive.border.color <- map.color2
+ 	if(two.ended.maps==T) a[[ww]]$fill.regions <- "two ended"
+  }
+
+
+####################################################
+### Warnings for misspecified attributes
+####################################################
+
+
+  # There are various differences in panel specifications that might screw up vertical alignment among the panels
+  #   We warn users that they've screwed up here:
 if(!all_equal2(all_atts(a, 'panel.margins1')) | !all_equal2(all_atts(a, 'panel.margins3'))) warning("top and bottom panel margins should be equal in order for panels to align correctly", call. = FALSE, immediate. = TRUE)
 if(!all_equal2(all_atts(a, 'panel.header.size'))) warning("header sizes should be equal in order for panels to align correctly", call. = FALSE, immediate. = TRUE)
 if(!all_equal2(all_atts(a, 'xaxis.title.size'))) warning("x axis title sizes should be equal in order for panels to align correctly", call. = FALSE, immediate. = TRUE)
+
+if(!(all_atts(a, 'fill.regions') %in% c('aggregate','two ended','with data'))) stop("fill.regions must specified as either 'aggregate', 'two ended', or 'with data'", call. = FALSE, immediate. = TRUE)
+
+
 
 ##########################
 ## data reorganization ###
@@ -138,10 +153,8 @@ DF <- create_DF_rank(dStats, ord.by, grouping, median.row, rev.ord)
 
   # add entries in the attribute list so that information about the median can be passed 
   # 	among all the panel building and cleaning functions
-a$median.row <- median.row			
-a$two.ended.maps <- two.ended.maps	
-a$m.pGrp <- (max(DF$pGrp)+1)/2
-a$m.rank <- (max(DF$rank)+1)/2
+a$m.pGrp <- DF$pGrp[DF$median]
+a$m.rank <- DF$rank[DF$median]
 
 
   # Many panel plotting functions add extra columns to the DF table. This is
@@ -152,14 +165,14 @@ a$ncols <- ncol(DF.hold)	# so we can keep track of how many extra columns have b
 
 
 # Rearrange the map data table, with a rank, pGrp, and pGrpOrd column
-if(any(panel.types=='map')){
+if(!is.null(map.data) & any(panel.types=='map')){
     # clear out any NA rows
   dMap <- dMap[!(is.na(dMap$coordsx)|is.na(dMap$coordsy)),]
 
     # if map.all is not specified we remove all polygons from mapDF that
     # 	which are not linked to the stat table
   w <- match(dMap[,map.link[2]], unique(DF[,map.link[1]]))
-  if(!map.all) mapDF <- dMap[!is.na(w),] else mapDF <- dMap
+  if(!a[[which(panel.types=='map')]]$map.all) mapDF <- dMap[!is.na(w),] else mapDF <- dMap
 
     # make sure there is a hole and plug column. If not, just insert dummy columns 
   if(!'hole'%in%names(mapDF)) mapDF$hole <- 0
@@ -178,9 +191,17 @@ if(any(panel.types=='map')){
   w <- match(mapDF[,map.link[2]], tmpDF[,map.link[1]])
   mapDF <- cbind(pGrpOrd=tmpDF$pGrpOrd[w], mapDF)
   mapDF$pGrpOrd <- as.numeric(mapDF$pGrpOrd)
+  nYrows <- max(mapDF$pGrpOrd[!is.na(mapDF$pGrpOrd)])
+
+    # change coordinates to align properly with other panels
+  yRedFact <- diff(range(mapDF$coordsy))/nYrows
+  mapDF$coordsy <- (mapDF$coordsy - min(mapDF$coordsy))/diff(range(mapDF$coordsy)) * nYrows
+  mapDF$coordsx <-   (mapDF$coordsx - min(mapDF$coordsx))/yRedFact 
 
   rm(tmpDF)
 }
+
+
 
 
   # set up a list to store plot objects to be created later
@@ -221,6 +242,7 @@ for(p in 1:nPanels){
 ##############################
 ##### construct the plot #####
 ##############################
+if(any(panel.types=='dot_legend')) a[[which(panel.types=='dot_legend')]]$panel.width <- a[[which(panel.types=='dot_legend')]]$panel.width * .2
 
 lwidth <- pps
 for(w in 1:length(all_atts(a,'panel.width'))) lwidth <- c(lwidth, all_atts(a,'panel.width')[w], pps)
@@ -237,17 +259,24 @@ plots$plot.height <- plot.height
   # creates final LM from plot objects
 if(right(print.file,4)=='.pdf') 	pdf(print.file, width = plot.width, height = plot.height)
 if(right(print.file,5)=='.tiff') 	tiff(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
+if(right(print.file,5)=='.tif') 	tiff(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
 if(right(print.file,5)=='.jpeg') 	jpeg(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
 if(right(print.file,4)=='.jpg') 	jpeg(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
-if(right(print.file,5)=='.png') 	png(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
-if(!right(print.file,4) %in% c('.pdf','tiff','jpeg','.png')) x11(width=plot.width, height=plot.height)
+if(right(print.file,4)=='.png') 	png(print.file, width = plot.width, height = plot.height, units='in', res=print.res)
+if(right(print.file,3)=='.ps') 		postscript(print.file, width = plot.width, height = plot.height)
+recognized.print.type <- right(print.file,3) %in% right(c('.pdf','.tiff','.tif','.jpeg','.jpg','.png','.ps'),3)
+if(!recognized.print.type){
+  if(.Platform$OS.type == "windows") options(device="windows")
+	dev.new(width=plot.width, height=plot.height)
+}
+if(!print.file=="no" & !recognized.print.type) print("Warning: printing file type not recognized")
 
   # sets up layout and loops through panels in order plotting them out
 grid.newpage()
 pushViewport(viewport(layout = lmLayout))
 suppressWarnings(for(p in 1:nPanels) print(plots[[p]], vp = subplot(1, p*2)))
 
-if(right(print.file,4)%in%c('.pdf','tiff','jpeg','.png')) dev.off()
+if(recognized.print.type) dev.off()
 
   # invisibly return the list of ggplot objects 
 invisible(plots)
@@ -258,16 +287,23 @@ invisible(plots)
 
 
 printLMPlot <- function(plobject, name, res){
-	file.name <- name
-	if(right(name,4)=='.pdf')  pdf(name, width = plobject$plot.width, height = plobject$plot.height)
-	if(right(name,5)=='.tiff') tiff(name, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
-	if(right(name,5)=='.jpeg') jpeg(name, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
-	if(right(name,5)=='.png')  png(name, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
-	
-	grid.newpage()
-	pushViewport(viewport(layout = plobject$layout))
-	subplot <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
-	suppressWarnings(for(p in 1:(length(plobject)-3)) print(plobject[[p]], vp = subplot(1, p*2)))
-	
-	dev.off()
+
+    file.name <- print.file <- name
+    if(right(print.file,4)=='.pdf')     pdf(print.file, width = plobject$plot.width, height = plobject$plot.height)
+    if(right(print.file,5)=='.tiff')    tiff(print.file, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
+    if(right(print.file,4)=='.tif')     tiff(print.file, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
+    if(right(print.file,5)=='.jpeg')    jpeg(print.file, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
+    if(right(print.file,4)=='.jpg')     jpeg(print.file, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
+    if(right(print.file,4)=='.png')     png(print.file, width = plobject$plot.width, height = plobject$plot.height, units='in', res=res)
+    if(right(print.file,3)=='.ps')      postscript(print.file, width = plobject$plot.width, height = plobject$plot.height)
+    recognized.print.type <- right(print.file,3) %in% right(c('.pdf','.tiff','.tif','.jpeg','.jpg','.png','.ps'),3)
+
+    if(!recognized.print.type) print("Warning: printing file type not recognized")
+
+    grid.newpage()
+    pushViewport(viewport(layout = plobject$layout))
+    suppressWarnings(for(p in 1:(length(plobject)-3)) print(plobject[[p]], vp = subplot(1, p*2)))
+    
+    dev.off()
 }
+

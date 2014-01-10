@@ -6,6 +6,8 @@
 \alias{CatMaps}
 \alias{create_DF_rank}
 \alias{create_DF_cat}
+\alias{dot_legend_att}
+\alias{dot_legend_build}
 \alias{graph_opts}
 \alias{list_att}
 \alias{make.string}
@@ -24,6 +26,8 @@ axis_opts(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE)
 CatMaps(pl, p, mapDF, att)
 create_DF_rank(data, ord.by, grouping, median.row=FALSE, rev.ord=FALSE)
 create_DF_cat(data, grp.by, cat)
+dot_legend_att(show=FALSE)
+dot_legend_build(pl, p, DF, att)
 graph_opts(i, pl, a)
 list_att(panel.type)
 make.string(vct)
