@@ -3,7 +3,8 @@ if(getRversion() >= "2.15.1")
       "hole", "IDpoly", "pGrp", "pGrpOrd", "plot.height", "plot.width",
       "print.file", "region", "tmp.adj", "tmp.data", "tmp.data1", "tmp.data2",
       "tmp.data3", "tmp.data4", "tmp.data5", "tmp.data6", "tmp.data7",
-      "tmp.labels", "tmp.y", "textx", "texty", "xmax", "xmin", "ymax", "ymin"))
+      "tmp.label", "tmp.labels", "tmp.y", "textx", "texty", "xmax", "xmin",
+      "ymax", "ymin"))
 
 
 all_atts <- function(a, att.name)

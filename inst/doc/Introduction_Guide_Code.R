@@ -1,6 +1,6 @@
 library(micromap)
 
-#Code for Section 1 Introduction
+# Code for Section 1 Introduction
 ### intial example
 data("edPov")
 head(edPov)
@@ -14,8 +14,8 @@ statePolys <- create_map_table(USstates, 'ST')
 head(statePolys)
 
 
-### basic micromap plot figure 1
-lmplot(stat.data=edPov,
+### draft micromap plot figure 1
+mmplot(stat.data=edPov,
        map.data=statePolys,
        panel.types=c('labels', 'dot', 'dot','map'),
        panel.data=list('state','pov','ed', NA),
@@ -25,7 +25,7 @@ lmplot(stat.data=edPov,
 
 
 ### publication figure 2
-lmplot(stat.data=edPov,  map.data=statePolys ,
+mmplot(stat.data=edPov,  map.data=statePolys ,
        panel.types=c('labels', 'dot', 'dot','map'),
        panel.data=list('state','pov','ed', NA),
        ord.by='pov',  
@@ -53,11 +53,11 @@ lmplot(stat.data=edPov,  map.data=statePolys ,
 
 
 
-#Code for Section 2 Quick Plotting tips
+# Code for Section 2 Quick Plotting tips
 ### publication figure 3
-lmplot (stat.data=edPov, map.data=statePolys,
+mmplot (stat.data=edPov, map.data=statePolys,
         panel.types=c('dot_legend', 'labels', 'dot', 'dot', 'map'),
-        panel.data=list('points', 'state', 'pov', 'ed', NA),
+        panel.data=list(NA, 'state', 'pov', 'ed', NA),
         map.link=c('StateAb','ID'),
         ord.by='pov', 
         grouping=5, 
@@ -94,15 +94,15 @@ lmplot (stat.data=edPov, map.data=statePolys,
 
 
 ### publication figure 4
-myPlot <- lmplot(stat.data=edPov, map.data=statePolys,
+myPlot <- mmplot(stat.data=edPov, map.data=statePolys,
                  panel.types=c('map', 'dot_legend',  'labels', 'dot', 'dot'),
-                 panel.data=list(NA, 'points', 'state', 'pov', 'ed'),
+                 panel.data=list(NA, NA, 'state', 'pov', 'ed'),
                  map.link=c('StateAb','ID'),
                  ord.by='pov', 
                  grouping=5, 
                  median.row=T,
                                   
-                 plot.height=9, 
+                 plot.height=9,
                  
                  colors=c('red','orange','green','blue','purple'),
                  map.color2='lightgray', 
@@ -129,11 +129,14 @@ myPlot <- lmplot(stat.data=edPov, map.data=statePolys,
                                      inactive.border.color=gray(.7), inactive.border.size=2, 
                                      panel.width=.8)))
 
-printLMPlot(myPlot, name='myExhibit.tiff', res=300)
+print(myPlot, name='myExhibit.tiff', res=300)
 
 
 
-#Code for Section 3 Preparing data for use with the library
+# Code for Section 3 Preparing data for use with the library
+# The download.file command may or may not work depending on firewall settings.
+# If it fails, then download the file from the ftp directory to a local
+# directory manually.
 download.file("ftp://ftp.epa.gov/wed/ecoregions/tx/tx_eco_l3.zip",
               "C:/temp/tx_eco_l3.zip")
 library(rgdal)
@@ -158,6 +161,9 @@ class(txeco2)
 plot(txeco2)
 
 # Simplifying very large spatial data sets
+# The download.file command may or may not work depending on firewall settings.
+# If it fails, then download the file from the ftp directory to a local
+# directory manually.
 download.file("ftp://ftp.epa.gov/wed/ecoregions/us/Eco_Level_III_US.zip",
               "C:/temp/Eco_Level_III_US.zip")
               
@@ -172,11 +178,11 @@ eco3_thin2 <- thinnedSpatialPoly(eco3, tolerance=50000, minarea=100,avoidGEOS= T
 eco3_thin3 <- gSimplify(eco3, tol=50000, topologyPreserve=TRUE)
 class(eco3_thin3) #note gSimplify returns a spatial polygon object
 
-#convert spatial polygon object to spatial polygon data frame
+# convert spatial polygon object to spatial polygon data frame
 df <- eco3@data
 eco3 <- SpatialPolygonsDataFrame(eco3_thin3, df)
               
-#Code for section 5 Creating a new panel type
+# Code for section 5 Creating a new panel type
 ### new graph type instructions
 data("lungMort")
 myStats <- lungMort
@@ -186,9 +192,9 @@ head(myStats)
 myStats <- subset(myStats, !StateAb=='DC')
 
 
-myNewStats <- create_DF_rank(myStats, ord.by="Rate_00", grouping=5)
+myNewStats <- create_DF_rank(myStats, ord.by="Rate_00", group=5)
 head(myNewStats)
-#step 1.
+# step 1.
 ### ggplot2 code:
 ggplot(myNewStats) + 
                geom_segment(aes(x=Rate_95, y=-pGrpOrd,
@@ -200,7 +206,7 @@ ggplot(myNewStats) +
 
 
 
-#step 2.
+# step 2.
 myAtts <- sample_att()
 myNumber <- 1
 
@@ -227,7 +233,7 @@ myPanel  <- ggplot(myNewStats) +
 myPanel
 class(myPanel)
 
-#step 3.
+# step 3.
 ## add in plot attributes
 assimilatePlot(myPanel, myNumber, myAtts) 
 
@@ -271,7 +277,7 @@ arrow_plot_build <- function(myPanel, myNumber, myNewStats, myAtts){
   }
 myPanel
 
-#step 4.
+# step 4.
 ## build specialized attributes list
 print(myAtts) #see full list of attributes available for alteration / specification by a user
 myPanelAtts <- standard_att()
@@ -318,7 +324,7 @@ myPanel
 ## figure 7 Basic micromap plot with arrow panel
 data("USstates")
 statePolys <- create_map_table(USstates, 'ST')
-lmplot(stat.data=myStats,
+mmplot(stat.data=myStats,
        map.data=statePolys,
        panel.types=c('map','labels', 'arrow_plot'),
        panel.data=list(NA,'State', list('Rate_95','Rate_00')), 
@@ -331,7 +337,7 @@ lmplot(stat.data=myStats,
 ## figure 8 Micromap plot with arrow panel
 myStats <- lungMort
 
-lmplot(stat.data=myStats,
+mmplot(stat.data=myStats,
        map.data=statePolys,
        panel.types=c('map', 'dot_legend', 'labels', 'dot_cl', 'arrow_plot'),
        panel.data=list(NA,
@@ -369,8 +375,8 @@ lmplot(stat.data=myStats,
                                xaxis.title='Deaths per 100,000'))) 
 
 
-#Code for section 6 Group-Categorized Micromaps
-### lmgroupedPlot
+# Code for section 6 Group-Categorized Micromaps
+### mmgroupedPlot
 data('vegCov')
 data('WSA3')
 print(vegCov)
@@ -379,7 +385,7 @@ print(WSA3@data)
 wsa.polys <- create_map_table(WSA3)
 head(wsa.polys)
 
-#create a national polygon area based on the 9 NARS reporting regions
+# create a national polygon area based on the 9 NARS reporting regions
 national.polys <-subset(wsa.polys, hole==0 & plug==0)
 national.polys <- transform(national.polys, ID='National', region=4, poly=region*1000 + poly)
 head(national.polys)
@@ -388,7 +394,7 @@ wsa.polys <- rbind(wsa.polys, national.polys)
 
 
 ### figure 9 Basic group-categorized micromap plot
-lmgroupedplot(stat.data=vegCov,
+mmgroupedplot(stat.data=vegCov,
               map.data=wsa.polys,
               panel.types=c('map', 'labels', 'bar_cl', 'bar_cl'),
               panel.data=list(NA,'Category',
@@ -401,7 +407,7 @@ lmgroupedplot(stat.data=vegCov,
 
 
 ### figure 10 Group-categorized micromap plot
-lmgroupedplot(stat.data= vegCov,
+mmgroupedplot(stat.data= vegCov,
               map.data= wsa.polys,
               panel.types=c('map', 'labels', 'bar_cl', 'bar_cl'),
               panel.data=list(NA,'Category',
@@ -422,15 +428,11 @@ lmgroupedplot(stat.data= vegCov,
                                   header.size=1.5, 
                                   panel.width=1.7),
                              list(3, header='Percent', header.size=1.5, 
-                                  xaxis.ticks.display=T, 
-                                  xaxis.text.display=T, 
                                   graph.bgcolor='lightgray',
                                   xaxis.title='percent',
                                   xaxis.ticks=c(0,20,40,60),
                                   xaxis.labels=c(0,20,40,60)),
                              list(4, header='Unit', header.size=1.5, 
-                                  xaxis.ticks.display=T, 
-                                  xaxis.text.display=T, 
                                   graph.bgcolor='lightgray',
                                   xaxis.title='thousands',
                                   xaxis.ticks=c(0, 200000,350000,550000),

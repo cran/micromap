@@ -4,8 +4,8 @@
   Print lmplot Object to a File
 }
 \description{
-  Takes a stored lmplot object and prints to a file whose type is implied by the
-  file name.
+  Takes a stored lmplot object and uses the print method for objects of class mm
+  to print to a file whose type is implied by the file name.
 }
 \usage{
 printLMPlot(plobject, name, res)

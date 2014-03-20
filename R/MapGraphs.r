@@ -1,4 +1,5 @@
 RankMaps <- function(pl, p, mapDF, att){
+	# att=a
 	bgcolor 	<- ifelse(!is.na(att[[p]]$panel.bgcolor), att[[p]]$panel.bgcolor, 'white')
 	outer.hull 	<- att[[p]]$outer.hull		# whether we need to construct an outline of the map poygons
 	ncolors 	<- length(att$colors)
@@ -14,7 +15,7 @@ RankMaps <- function(pl, p, mapDF, att){
         mapDF <- subset(mapDF.all, !is.na(rank))	
 
 	#*** here we build the "outer hull" (polygon outline) if neccesary
-	if(outer.hull==T){
+	if(outer.hull==TRUE){
 		ii=0
 		lHull <- NULL
 		for(rr in unique(mapDF.all$region)){
@@ -62,24 +63,24 @@ RankMaps <- function(pl, p, mapDF, att){
 	#*** If there is an odd number of polygons and a median row in our map 
 	#***   we must deal with the median polygon specially
 	if(att$median.row & any(mapDF$pGrp==att$m.pGrp)){
-		#*** find the median polygon set the fill color for it to be gray
+		#*** find the median polygon set the fill color for it to be the user specified median color
 		#*** create copies of that polygon to be displayed in the preceding 
 		#*** and subsequent perceptual groups  
 		mapDF.median 		<- subset(mapDF, pGrp==att$m.pGrp)
 		mapDF.median$fill.color <- ncolors+1	
-		mapDF.median		<- rbind(transform(mapDF.median, pGrp=(att$m.pGrp-.5), IDpoly='median1'),
-						transform(mapDF.median, pGrp=(att$m.pGrp+.5), IDpoly='median2'))
+		mapDF.median		<- rbind(transform(mapDF.median, pGrp=(att$m.pGrp-1), IDpoly='median1'),
+						transform(mapDF.median, pGrp=(att$m.pGrp+1), IDpoly='median2'))
 		
 		mapDF <- rbind(subset(mapDF, !pGrp==att$m.pGrp), mapDF.median)
 	}
 
-
 	#*** Creates the map panel object 	
 	pl <- ggplot(mapDF, aes(x=coordsx, y=coordsy, group=IDpoly)) 
 
+
 	#*** If we are displaying polygons without associated data we 
 	#***   do so first so they appear in the background
-	if(map.all==T){
+	if(map.all==TRUE){
 		if(nrow(subset(mapDF.all, is.na(pGrp)))>0) for(g in nGroups[1]:nGroups[2]) pl <- pl + 
 			geom_polygon(fill=att[[p]]$nodata.fill, 
 				colour=att[[p]]$nodata.border.color, 
@@ -93,13 +94,18 @@ RankMaps <- function(pl, p, mapDF, att){
 	#***   previous perceptual groups or future groups depending on the 
 	#***   user's shading preference
 	if(att[[p]]$fill.regions=="aggregate"){
-		for(g in 1:(nGroups[2]-1)) pl <- pl + 
+		lWith.data <- 1:(nGroups[2]-1)
+		lWith.data <- lWith.data[!lWith.data==att$m.pGrp]
+		lWithout.data <- max(nGroups[1],2):nGroups[2]
+		lWithout.data <- lWithout.data[!lWithout.data==att$m.pGrp]
+
+		for(g in lWith.data) pl <- pl + 
 			geom_polygon(fill=att[[p]]$withdata.fill, 
 				colour=att[[p]]$withdata.border.color, 
 				size=att[[p]]$withdata.border.size/2, 
 				data=transform(mapDF[mapDF$pGrp>g,], pGrp=g))						
 
-		for(g in max(nGroups[1],2):nGroups[2]) pl <- pl + 
+		for(g in lWithout.data) pl <- pl + 
 			geom_polygon(fill=att[[p]]$inactive.fill, 
 				colour=att[[p]]$inactive.border.color,  
 				size=att[[p]]$inactive.border.size/2, 
@@ -108,27 +114,33 @@ RankMaps <- function(pl, p, mapDF, att){
 	 }
  	
 	if(att[[p]]$fill.regions=="two ended"){
-		for(g in nGroups[1]:floor(att$m.pGrp)) pl <- pl + 
+		lGroups <- nGroups[1]:floor(att$m.pGrp)
+		lGroups <- lGroups[!lGroups==att$m.pGrp]
+		for(g in lGroups) pl <- pl + 
 			geom_polygon(fill=att[[p]]$withdata.fill, 
 				colour=att[[p]]$withdata.border.color,  
 				size=att[[p]]$withdata.border.size/2, 
 				data=transform(mapDF[mapDF$pGrp>g,], pGrp=g)) 	
 
-		for(g in max(nGroups[1],2):floor(att$m.pGrp)) pl <- pl + 
+		lGroups <- max(nGroups[1],2):floor(att$m.pGrp)
+		lGroups <- lGroups[!lGroups==att$m.pGrp]
+		for(g in lGroups) pl <- pl + 
 			geom_polygon(fill=att[[p]]$inactive.fill, 
 				colour=att[[p]]$inactive.border.color,  
 				size=att[[p]]$inactive.border.size/2, 
 				data=transform(mapDF[mapDF$pGrp<g,], pGrp=g)) 	
 
-
-		for(g in ceiling(att$m.pGrp):nGroups[2]) pl <- pl + 
+		lGroups <- ceiling(att$m.pGrp):nGroups[2]
+		lGroups <- lGroups[!lGroups==att$m.pGrp]
+		for(g in lGroups) pl <- pl + 
 			geom_polygon(fill=att[[p]]$withdata.fill, 
 				colour=att[[p]]$withdata.border.color,  
 				size=att[[p]]$withdata.border.size/2, 
 				data=transform(mapDF[mapDF$pGrp<g,], pGrp=g)) 
 
-
-		for(g in ceiling(att$m.pGrp):(nGroups[2]-1)) pl <- pl + 
+		lGroups <- ceiling(att$m.pGrp):(nGroups[2]-1)
+		lGroups <- lGroups[!lGroups==att$m.pGrp]
+		for(g in lGroups) pl <- pl + 
 			geom_polygon(fill=att[[p]]$inactive.fill, 
 				colour=att[[p]]$inactive.border.color,  
 				size=att[[p]]$inactive.border.size/2, 
@@ -138,7 +150,10 @@ RankMaps <- function(pl, p, mapDF, att){
 	}
 
 	if(att[[p]]$fill.regions=="with data"){
-		for(g in nGroups[1]:nGroups[2]) pl <- pl + 
+		lWith.data <- nGroups[1]:nGroups[2]
+		lWith.data <- lWith.data[!lWith.data==att$m.pGrp]
+
+		for(g in lWith.data) pl <- pl + 
 			geom_polygon(fill=att[[p]]$withdata.fill, 
 				colour=att[[p]]$withdata.border.color,  
 				size=att[[p]]$withdata.border.size/2, 
@@ -154,7 +169,7 @@ RankMaps <- function(pl, p, mapDF, att){
 			colour=att[[p]]$active.border.color, 
 			size=att[[p]]$active.border.size/2, 
 			data=subset(mapDF, hole==0)) + 				
-		facet_grid(pGrp~.) +
+		facet_grid(pGrp~., scales="free_y", space="free") +
 		scale_fill_manual(values=c(att$colors), guide='none') +
 		coord_equal() 
 
@@ -162,34 +177,55 @@ RankMaps <- function(pl, p, mapDF, att){
 	  #################################
 	  #################################
 	  #*** insert white space for median row	
-	  mapDF.median <- data.frame(pGrpOrd=1, pGrp=(max(mapDF$pGrp)+1)/2, 
+	  mapDF.median <- data.frame(pGrpOrd=1, pGrp=att$m.pGrp, 
 					rank=(max(mapDF$rank)+1)/2, ID='median', 
 					coordsx=range(mapDF$coordsx)[c(1,1,2,2,1)], 
-					coordsy=median(range(mapDF$coordsy))+c(-1,1,1,-1,-1)*diff(range(mapDF$coordsy))/max(att$grouping),
-					textx=median(range(mapDF$coordsx)), texty=median(range(mapDF$coordsy)),	tmp.label='Median',
+					coordsy=c(.5, -.5)[c(1,2,2,1,1)],
+#					textx=median(range(mapDF$coordsx)), texty=median(range(mapDF$coordsy)),	
+					tmp.label=att$median.text.label,
+					textx=median(range(mapDF$coordsx)), texty=0, tmp.label='Median',
 					region=1, poly=1, plug=0, hole=0, IDpoly='median')
 	
 	  if(att$median.row) pl <- pl + 
 			geom_polygon(fill='white', colour='white', data=mapDF.median) + 
-				geom_text(aes(x=textx, y=texty, label='Median', hjust=.5, vjust=.4), data=mapDF.median) +
+				geom_text(aes(x=textx, y=texty, label=tmp.label, hjust=.5, vjust=.4),
+						colour=att$median.text.color, size=5*att$median.text.size, data=mapDF.median) +
 				facet_grid(pGrp~., scales="free_y", space="free")
 
 	  #################################
 	  #################################
 
-
 	  #*** Throw an outer hull over the outside
 
-	if(outer.hull==T) for(g in nGroups[1]:nGroups[2]) pl <- pl + geom_polygon(fill=NA,	 
+	if(outer.hull==TRUE) for(g in nGroups[1]:nGroups[2]) pl <- pl + geom_polygon(fill=NA,	 
 													colour=att[[p]]$outer.hull.color, 
 													size=att[[p]]$outer.hull.size, 
 													data=data.frame(dHull, pGrp=g))
 
 
+	#*** Creates backgroupnd points to correctly align perceptual groups 		
+	bdrCoordsy <- att[[p]]$bdrCoordsy
+	bdrCoordsy <- bdrCoordsy + c(1,-1) * diff(bdrCoordsy)*att$plot.pGrp.spacing
+	bdrCoordsy <- bdrCoordsy + c(0, -1) * diff(range(bdrCoordsy))*.001
+
+	bdrCoordsx <- att[[p]]$bdrCoordsx
+
+	bdrCoords <- data.frame(coordsx=bdrCoordsx, coordsy=bdrCoordsy, pGrp=NA, IDpoly=NA)
+	lGroups <- nGroups[1]:nGroups[2]
+	lGroups <- lGroups[!lGroups==att$m.pGrp]
+	for(g in lGroups) pl <- pl + 
+		geom_point(fill=bgcolor, size=.001,
+				colour=bgcolor, 			
+				data=transform(bdrCoords, pGrp=g))
+
 
 	  #*** "house keeping" functions to align all panels and apply the user's graphical specifications\	
 	xstr.title <-  "''"
 
+
+	  # If all axis titles aren't NA then we must change the other titles to be blank in order to leave space
+	  # 	for them at the bottom. If any title is multiple lines (ie contains '\n') then we must add in 
+	  # 	the correct number of character returns to the other titles in order to make the plot uniform
 	if(!all(is.na(all_atts(att, 'xaxis.title')))){
 		tmp.titles <- lapply(all_atts(att, 'xaxis.title'), function(t) if(is.na(t)|t=='') t=' ' else t)
 		tmp.title <- tmp.titles[[p]]
@@ -211,28 +247,10 @@ RankMaps <- function(pl, p, mapDF, att){
 				theme(axis.ticks = element_blank()) 
 	 }
 
-	# We expand the maps so that they are as big as possible. First adjust to account for map aspect ratios, 
-	# then for plot aspect ratio, then for the map panel portion of the plot (based on comparitive panel width), 
-	# then for number of perceptual groups (need to adjust if # pereptual groups doesnt equal # of panels)
-	pGrp.spacing <-  (	(diff(range(mapDF$coordsx)) / diff(range(mapDF$coordsy))) / 
-				(att$plot.width / att$plot.height) * 	
-				1/length(all_atts(att, 'panel.width')) / 
-				(as.numeric(att[[p]]$panel.width) / sum(as.numeric(all_atts(att, 'panel.width')))) *
-				length(all_atts(att, 'panel.width'))/max(mapDF$pGrp)
-			 	- 1	)/ 2
-	pGrp.spacing <- max(pGrp.spacing, att$map.spacing)	
 
 
-	if(att$median.row) pGrp.spacing <- pGrp.spacing
+	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(0,0))")
 
-
-	# panel margins must be brought in for the maps to line up by default so here
-	# 	we do a little adjustment to what the user has specified	
-	att[[p]]$panel.margins[2] <- att[[p]]$panel.margins[2] - .25
-
-
-	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(",pGrp.spacing,",",pGrp.spacing,"))")
-#	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(0,0))")
 	pl <- pl + eval(parse(text=ystr))
 
 	pl  <- plot_opts(p, pl, att)		
@@ -240,14 +258,10 @@ RankMaps <- function(pl, p, mapDF, att){
 
 	pl <- pl + theme(panel.margin = unit(0, "lines"))
 
+
 	pl 
 
 }
-
-
-
-
-
 
 
 CatMaps <- function(pl, p, mapDF, att){
@@ -262,14 +276,32 @@ CatMaps <- function(pl, p, mapDF, att){
 		geom_polygon(fill=att$map.color, colour='black', data=subset(mapDF, hole==0)) + 				
 		geom_polygon(fill='white', colour='black', data=subset(mapDF, hole==1)) +
 		geom_polygon(fill='transparent', colour='black', data=subset(transform(mapDF, pGrp=NULL), hole==1)) +
-		facet_grid(pGrp~.) +
+		facet_grid(pGrp~., scales="free_y", space="free") +
 		coord_equal() 
-  	
-	  #*** "house keeping" functions to align all panels and apply the user's graphical specifications
+
+
+
+	#*** Creates backgroupnd points to correctly align perceptual groups 		
+	bdrCoordsy <- att[[p]]$bdrCoordsy
+	bdrCoordsy <- bdrCoordsy + c(1,-1) * diff(bdrCoordsy)*att$plot.pGrp.spacing
+	bdrCoordsy <- bdrCoordsy + c(0, -1) * diff(range(bdrCoordsy))*.001
+
+	bdrCoordsx <- att[[p]]$bdrCoordsx
+
+	bdrCoords <- data.frame(coordsx=bdrCoordsx, coordsy=bdrCoordsy, pGrp=NA, poly=NA)
+	pl <- pl + geom_point(fill=bgcolor, size=.001,
+				colour=bgcolor, 			
+				data=transform(bdrCoords, pGrp=NULL))
+
+
+	  #*** "house keeping" functions to align all panels and apply the user's graphical specifications\	
 	xstr.title <-  "''"
 
-	if(!all(is.na(all_atts(att, 'xaxis.title')))){
 
+	  # If all axis titles aren't NA then we must change the other titles to be blank in order to leave space
+	  # 	for them at the bottom. If any title is multiple lines (ie contains '\n') then we must add in 
+	  # 	the correct number of character returns to the other titles in order to make the plot uniform
+	if(!all(is.na(all_atts(att, 'xaxis.title')))){
 		tmp.titles <- lapply(all_atts(att, 'xaxis.title'), function(t) if(is.na(t)|t=='') t=' ' else t)
 		tmp.title <- tmp.titles[[p]]
 		ns <- max(unlist(lapply(tmp.titles, function(x) length(strsplit(x, '\n')[[1]])))) - length(strsplit(tmp.title,'\n')[[1]])  
@@ -280,32 +312,19 @@ CatMaps <- function(pl, p, mapDF, att){
 	  } else {
 		pl <- pl + theme(axis.title.x = element_blank()) 
 	}
-
 	
+
 	if(any(c(all_attsb(att, 'xaxis.ticks.display'), all_attsb(att, 'xaxis.text.display')))){
-		pl <- pl + scale_x_continuous(xstr.title) +
-				theme(axis.text.x = element_text(colour=bgcolor)) +
-				theme(axis.ticks = element_line(colour=bgcolor)) 
+		pl <- pl + theme(axis.text.x = element_text(colour=bgcolor)) +
+				theme(axis.ticks = element_line(colour=bgcolor))
 	 } else { 
-		pl <- pl + scale_x_continuous(xstr.title, breaks=NA)
-	}
+		pl <- pl + theme(axis.text.x = element_blank()) +
+				theme(axis.ticks = element_blank()) 
+	 }
 
 
-	# We expand the maps so that they are as big as possible. First adjust to account for map aspect ratios, 
-	# then for plot aspect ratio, then for the map panel portion of the plot (based on comparitive panel width), 
-	# then for number of perceptual groups (need to adjust if # pereptual groups doesnt equal # of panels)
-	pGrp.spacing <-  ((diff(range(mapDF$coordsx)) / diff(range(mapDF$coordsy))) / 
-				(att$plot.width / att$plot.height) * 	
-			1/length(all_atts(att, 'panel.width')) / 
-				(as.numeric(att[[p]]$panel.width) / sum(as.numeric(all_atts(att, 'panel.width')))) *
-			length(all_atts(att, 'panel.width'))/max(mapDF$pGrp)
-			 - 1)	/ 2
-	pGrp.spacing <- max(pGrp.spacing, att$map.spacing)
-
-	att[[p]]$panel.margins[2] <- att[[p]]$panel.margins[2] - .25
-
-	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(",pGrp.spacing,",",pGrp.spacing,"))")
-#	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(0,0))")
+#	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(",pGrp.spacing,",",pGrp.spacing,"))")
+	ystr <- paste("scale_y_continuous('', breaks=NULL, expand=c(0,0))")
 	pl <- pl + eval(parse(text=ystr))
 
 	pl  <- plot_opts(p, pl, att)		

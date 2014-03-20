@@ -1,5 +1,7 @@
-\name{lmplot}
+\name{mmplot}
+\alias{mmplot}
 \alias{lmplot}
+\alias{mmgroupedplot}
 \alias{lmgroupedplot}
 \title{
   Linked Micromaps
@@ -9,15 +11,35 @@
   statistical summary displays; differentianted by color.
 }
 \usage{
-lmplot(stat.data, map.data=NULL, panel.types, panel.data, map.link=NULL,
+mmplot(stat.data, map.data=NULL, panel.types, panel.data, map.link=NULL,
   nPanels=length(panel.types), ord.by, rev.ord=FALSE, grouping,
-  median.row= FALSE, median.color=gray(.5), colors=brewer.pal(max(grouping),
-  "Spectral"), map.all=FALSE, map.color2="lightgray", two.ended.maps=FALSE,
-  print.file="no", print.res=300, panel.att=vector("list", nPanels),
-  plot.header=NA, plot.header.size=NA, plot.header.color=NA, plot.footer=NA,
+  median.row= FALSE, vertical.align="top", median.color=gray(.5),
+  median.text.color="black", median.text.size=1,
+  median.text.label="Median",colors=brewer.pal(max(grouping), "Spectral"),
+  map.all=FALSE, map.color2="lightgray", two.ended.maps=FALSE, print.file="no",
+  print.res=300, panel.att=vector("list", nPanels), plot.header=NA,
+  plot.header.size=NA, plot.header.color=NA, plot.footer=NA,
   plot.footer.size=NA, plot.footer.color=NA, plot.width=7, plot.height=7,
   map.spacing=1, plot.pGrp.spacing=1, plot.panel.spacing=1,
   plot.panel.margins=c(0,0,1,0))
+
+lmplot(stat.data, map.data=NULL, panel.types, panel.data, map.link=NULL,
+  nPanels=length(panel.types), ord.by, rev.ord=FALSE, grouping,
+  median.row= FALSE, vertical.align="top", median.color=gray(.5),
+  colors=brewer.pal(max(grouping), "Spectral"), map.all=FALSE,
+  map.color2="lightgray", two.ended.maps=FALSE, print.file="no", print.res=300,
+  panel.att=vector("list", nPanels), plot.header=NA, plot.header.size=NA,
+  plot.header.color=NA, plot.footer=NA, plot.footer.size=NA,
+  plot.footer.color=NA, plot.width=7, plot.height=7, map.spacing=1,
+  plot.pGrp.spacing=1, plot.panel.spacing=1, plot.panel.margins=c(0,0,1,0), ...)
+
+mmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
+  nPanels=length(panel.types), grp.by, cat, colors=brewer.pal(10, "Spectral"),
+  map.color="lightyellow", map.all=FALSE, print.file="no", print.res=NA,
+  panel.att=vector("list", nPanels), plot.header=NA, plot.header.size=NA,
+  plot.header.color=NA, plot.footer=NA, plot.footer.size=NA,
+  plot.footer.color=NA, plot.width=7, plot.height=7, map.spacing=1,
+  plot.grp.spacing=1, plot.panel.spacing=1, plot.panel.margins=c(0,0,1,0))
 
 lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   nPanels=length(panel.types), grp.by, cat, colors=brewer.pal(10, "Spectral"),
@@ -25,7 +47,7 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   panel.att=vector("list", nPanels), plot.header=NA, plot.header.size=NA,
   plot.header.color=NA, plot.footer=NA, plot.footer.size=NA,
   plot.footer.color=NA, plot.width=7, plot.height=7, map.spacing=1,
-  plot.grp.spacing=1, plot.panel.spacing=1, plot.panel.margins=c(0,0,1,0))
+  plot.grp.spacing=1, plot.panel.spacing=1, plot.panel.margins=c(0,0,1,0), ...)
 }
 \arguments{
   \item{stat.data}{
@@ -70,8 +92,20 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   median entries will be calculated from the supplied data. Note that without a
   median row maps are forced into proper size.
   }
+  \item{vertical.align}{
+  controls vertical alignment of the median row.
+  }
   \item{median.color}{
   specifies color of the median row.
+  }
+  \item{median.text.color}{
+  specifies color of text in the median row.
+  }
+  \item{median.text.size}{
+  specifies size of text in the median row.
+  }
+  \item{median.text.label}{
+  specifies the label for text in the median row.
   }
   \item{cat}{
   category column within stats table for a categorization type lmplot.
@@ -132,23 +166,26 @@ lmgroupedplot(stat.data, map.data, panel.types, panel.data, map.link=NULL,
   height of the overall plot in inches. Defaults to 7.
   }
   \item{map.spacing}{
-  the verticle spacing between maps measured in lines. Perceptual group spacing
+  the vertical spacing between maps measured in lines. Perceptual group spacing
   does not affect map spacing so as to leave the maps as large as possible. The
   user can increase map spacing using this argument. Defaults to 1.
   }
   \item{plot.pGrp.spacing}{
-  the verticle spacing between perceptual groups measured in lines. Defaults to
+  the vertical spacing between perceptual groups measured in lines. Defaults to
   1.
   }
   \item{plot.grp.spacing}{
-  the verticle spacing between groups measured in lines. Defaults to 1.
+  the vertical spacing between groups measured in lines. Defaults to 1.
   }
   \item{plot.panel.spacing}{
-  the verticle spacing between panels measured in lines. Defaults to 1.
+  the vertical spacing between panels measured in lines. Defaults to 1.
   }
   \item{plot.panel.margins}{
   the horizontal spacing between panels measured in lines. THIS IS LEGACY CODE
   AND SHOULD NOT BE USED.
+  }
+  \item{...}{
+    Additional arguments.  (Currently ignored.)
   }
 }
 \value{
@@ -280,7 +317,7 @@ myPlot <- lmplot(stat.data=edPov, map.data=statePolys,
 				inactive.border.color=gray(.7), inactive.border.size=2, 
 				panel.width=.8)))
 
-printLMPlot(myPlot, name='myExhibit.tiff', res=300)
+print(myPlot, name='myExhibit.tiff', res=300)
 }
 
 }

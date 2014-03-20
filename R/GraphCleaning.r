@@ -79,6 +79,7 @@ graph_opts <- function(i, pl, a){
 
 ### sets graph boundaries, ticks, labels, borders
 axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
+	# i=p; a=att; limsx=tmp.limsx; limsy=c(tmp.limsy,tmp.median.limsy); border=FALSE; expx=FALSE
 
 	# many features are "hidden" by simply coloring the same color as the background so
 	#   if panel background is NA we assume "white" will effectively do the hiding
@@ -209,7 +210,7 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	if (x.labels) xstr <- paste(xstr, xstr.labels)
 	if (x.limits) xstr <- paste(xstr, xstr.limits)
 	xstr <- paste(xstr, ")")
- 
+
 	pl <- pl + eval(parse(text=xstr))
  
  
@@ -233,6 +234,7 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	 ### axis limits and expansion ###
 	ystr.expand <- ", expand=c(0,0)"
 	limsy <- limsy + c(-1,1) * diff(limsy)*a$plot.pGrp.spacing
+
 	ystr.limits <- as.character(paste('c(',min(limsy), ',', max(limsy),')'))
 	ystr.limits <- paste(", limits=", ystr.limits)
 
@@ -246,24 +248,21 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	ystr <- paste("scale_y_continuous(", ystr.title, ystr.expand, ystr.breaks)
 	# if (y.limits) ystr <- paste(ystr, ystr.limits)
 	ystr <- paste(ystr, ")")
+
 	pl <- pl + eval(parse(text=ystr))
-
-
-
-
 
 
     ##############
     ### border ###   
     ##############
-
+ 
   	borderx <- range(limsx) + c(1,-1) * diff(range(limsx))*.001
 	bordery <- range(limsy) + c(0, -1) * diff(range(limsy))*.001
 	if(!is.null(median.limsy)) median.limsy <- range(median.limsy) - c(0, diff(range(median.limsy))*.001)
 
 	tmp.border <- data.frame(pGrp=rep(1:max(pl$data$pGrp),each=2), ymin=bordery[1], ymax=bordery[2], 
 									xmin=borderx[1], xmax=borderx[2])
-	if(a$median.row) tmp.border <- rbind(tmp.border, data.frame(pGrp=a$m.pGrp, ymin=median.limsy[1], ymax=median.limsy[2],
+	if(a$median.row) tmp.border <- rbind(subset(tmp.border, !pGrp==a$m.pGrp), data.frame(pGrp=a$m.pGrp, ymin=median.limsy[1], ymax=median.limsy[2],
 											xmin=borderx[1], xmax=borderx[2]))
 
 	if(border) border.color <- a[[i]]$graph.border.color else border.color <- NA
