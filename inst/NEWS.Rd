@@ -1,6 +1,22 @@
 \name{NEWS}
 \title{micromap News}
 
+\section{CHANGES IN micromap VERSION 1.9 (Released 2014-05-27)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item  Added an index.html file to the doc directory so that files in the
+        directory can be viewed from the package help page.
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item None.
+    }
+  }
+}
+
+
 \section{CHANGES IN micromap VERSION 1.8 (Released 2014-03-20)}{
   \subsection{NEW FEATURES}{
     \itemize{
