@@ -1,6 +1,22 @@
 \name{NEWS}
 \title{micromap News}
 
+\section{CHANGES IN micromap VERSION 1.9.1 (Released 2015-01-23)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item  Revised the CITATION file to reference the article in the Journal
+        of Statistical Software.
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item None.
+    }
+  }
+}
+
+
 \section{CHANGES IN micromap VERSION 1.9 (Released 2014-05-27)}{
   \subsection{NEW FEATURES}{
     \itemize{
