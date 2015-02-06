@@ -1,6 +1,22 @@
 \name{NEWS}
 \title{micromap News}
 
+\section{CHANGES IN micromap VERSION 1.9.2 (Released 2015-02-06)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item None.
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item  Revised the DESCRIPTION file to avoid errors for functions imported
+        from other packages.
+    }
+  }
+}
+
+
 \section{CHANGES IN micromap VERSION 1.9.1 (Released 2015-01-23)}{
   \subsection{NEW FEATURES}{
     \itemize{

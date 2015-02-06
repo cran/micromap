@@ -2,11 +2,11 @@
 exportPattern(".")
 
 # Import all packages listed as Depends or Imports
-import(sp)
-import(ggplot2)
-import(grid)
 import(maptools)
 import(RColorBrewer)
 import(rgdal)
+import(sp)
+import(ggplot2)
+import(grid)
 
 S3method(print, mm)

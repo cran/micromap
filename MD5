@@ -1,5 +1,5 @@
-af51953de09786f7f675291cddd36a2c *DESCRIPTION
-5bf91c11103607f129ea4b7edbd58844 *NAMESPACE
+b549d8e82f82d2742b471fcb77e7a620 *DESCRIPTION
+7e7cb7ca04ec711f7055d5e7e8f6b373 *NAMESPACE
 538e494d71194b5f056830859e4e75f8 *R/AttDefaults.r
 7c45d901b8e1d8b9008b1df97cf9b3b6 *R/CreateMapTable.r
 3eee2c4f6ba6f8c185afa4277925616c *R/DataReorg.r
@@ -19,8 +19,8 @@ dacf6b4bbf31101195efce3643900906 *data/lungMort.rda
 f066fe4d4a66180e88b2c12fac9f3695 *data/statesFlatfile.rda
 ef7e4cac14e82a0d8e527bc7a542ae65 *data/vegCov.rda
 10334b7391903f69d8c12d5e2d55e861 *inst/CITATION
-6a136cadd19d83f89f2d4bf2e48394f1 *inst/NEWS.Rd
-7f80bf946092339dfc76fb733c45849e *inst/doc/CHANGES.pdf
+2b4374c9c92867c6fa9c789aca9e6ab5 *inst/NEWS.Rd
+c2dbf2929577af15d03b152ed4b37213 *inst/doc/CHANGES.pdf
 2853cad04dcff5c02f1dac06b2a04cfa *inst/doc/Introduction_Guide.pdf
 770474012771bd99b3064b212b37f9fa *inst/doc/Introduction_Guide_Code.R
 863afbdcf69d22f9fd42ddc6a385fd7f *inst/doc/index.html
