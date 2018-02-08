@@ -34,7 +34,7 @@ plot_opts <- function(i, pl, a){
 
 		pl <- pl + ggtitle(tmp.title) +
 				theme(plot.title=element_text(family=a[[i]]$panel.header.font, face=a[[i]]$panel.header.face, 
-							colour=a[[i]]$panel.header.color, size=tmp.size, lineheight=tmp.lineheight))
+							colour=a[[i]]$panel.header.color, size=tmp.size, lineheight=tmp.lineheight, hjust = 0.5))
 	} 
 	
 
@@ -202,9 +202,10 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	   # otherwise text shows up as ggplot defaults
 	}
  
- 
-	  # put it all together and execute the eval call
-	xstr <- paste("scale_x_continuous(", xstr.title)
+  # transformation string
+  xstr.trans <- paste0(', trans = ', a[[i]]$trans)
+
+	xstr <- paste("scale_x_continuous(", xstr.title, xstr.trans)
 	if (x.expand) xstr <- paste(xstr, xstr.expand)
 	if (x.breaks) xstr <- paste(xstr, xstr.breaks)
 	if (x.labels) xstr <- paste(xstr, xstr.labels)
@@ -238,7 +239,7 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 	ystr.limits <- as.character(paste('c(',min(limsy), ',', max(limsy),')'))
 	ystr.limits <- paste(", limits=", ystr.limits)
 
-	pl <- pl + theme(panel.margin = unit(0, "lines"))
+	pl <- pl + theme(panel.spacing = unit(0, "lines"))
 
 	
 	# if (any(is.na(limsy)) | a$median.row) y.limits <- FALSE else y.limits <- TRUE
@@ -280,7 +281,8 @@ axis_opts <- function(i, pl, a, limsx=NA, limsy=NA, border=TRUE, expx=FALSE){
 
 		
 assimilatePlot <- function(pl, i, a, limsx=NA, limsy=NA){
-	pl <- plot_opts(i,pl,a)
+
+  pl <- plot_opts(i,pl,a)
 	pl <- graph_opts(i,pl,a)
 
 	if(is.na(limsx)){ 
@@ -298,7 +300,7 @@ assimilatePlot <- function(pl, i, a, limsx=NA, limsy=NA){
 	  }
 
 	if(a$median.row){	
-		pl <- pl + scale_colour_manual(values=c(a$colors,gray(.5)), guide='none') 
+		pl <- suppressMessages({pl + scale_colour_manual(values=c(a$colors,gray(.5)), guide='none')})
 		
 		median.limsy <-  c(-.5, -1.5)
 		limsy <- c(limsy, median.limsy)
