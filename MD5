@@ -1,5 +1,5 @@
-c1fb09b2016010257c8be26849ebc97c *DESCRIPTION
-36d8232e421060281c1ac40fbd52fb98 *NAMESPACE
+c6169afa38c464db9d087339892445b3 *DESCRIPTION
+195a658a017875f506d1ab8a16942c5d *NAMESPACE
 4172011e765bcd236124880727d72186 *R/AttDefaults.r
 d18b190565d71d5218355733fbbf75b0 *R/CreateMapTable.r
 3eee2c4f6ba6f8c185afa4277925616c *R/DataReorg.r
@@ -10,7 +10,7 @@ e055273a784e52a07751c56a41c95b67 *R/PanelBuilding.r
 a5ed167189bce0198a4765a44fe6e8cb *R/lmGroupedPlot.r
 7628a2a92826827272fcaad21efab739 *R/lmPlot.r
 7bb517e1ba3fc1783c79b5bb5adc4576 *R/mmGroupedPlot.r
-141ce3a2cd33c01bd1a9b01890f07aee *R/mmPlot.r
+8c8cf9c2a4ce762dadbbe02759931dac *R/mmPlot.r
 d2e8798c250649fd3ef1f0d9572070ae *data/OrEcoLevel3.rda
 f70af9e2ed98300e8a6980d3097120d7 *data/USstates.rda
 b6d484ab4f332f66c9dd5671f3b8799a *data/WSA3.rda
@@ -19,7 +19,7 @@ dacf6b4bbf31101195efce3643900906 *data/lungMort.rda
 f066fe4d4a66180e88b2c12fac9f3695 *data/statesFlatfile.rda
 ef7e4cac14e82a0d8e527bc7a542ae65 *data/vegCov.rda
 9326acdd0f0042aad5bb9e6c9d47cc46 *inst/CITATION
-8424a3b0d81fabe400920d45b7651d83 *inst/NEWS.Rd
+aadd317fc2f45cbd886c9ef30abd6504 *inst/NEWS.Rd
 a13fc638eb5863112752d836a3724d2d *inst/doc/Introduction_Guide.R
 0b80000a6206db3cffcbd7f885536809 *inst/doc/Introduction_Guide.Rnw
 991ecaa861bc2159b31e80a1aa90a2a6 *inst/doc/Introduction_Guide.pdf
@@ -34,7 +34,7 @@ de1fcc8a1fd134ef6aa15aaf027787f7 *man/USstates.Rd
 ab35cd9211b8cdb8c2f74003aea07872 *man/labels_build.Rd
 0b30ebd1a211e952f25aa8d24ce5c1d5 *man/lmplot-internal.Rd
 c1605c735f8de8a26297f948d6377610 *man/lungMort.Rd
-2a9d912644d3e904732a9597d02bb6f5 *man/mmplot.Rd
+616f266c94e72f0fe195540b47c6170d *man/mmplot.Rd
 10c352b9f488093e8044650fbc421f26 *man/print.mm.Rd
 01b9576c8a2243179bed3d25a02aa863 *man/printLMPlot.Rd
 43c2450ccd90a8a0be6b4bc2226a5a19 *man/right.Rd

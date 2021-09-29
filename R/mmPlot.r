@@ -208,6 +208,28 @@ mmplot.SpatialPolygonsDataFrame <- function(map.data, ...){
 #' 
 #' @export
 #' 
+#' @importFrom sf as_Spatial
+#' 
+#' @method mmplot sf
+mmplot.sf <- function(map.data, ...){
+  
+  # use sf object and separate map.data and stat.data from the combined input
+  # put in format used by the default method
+  map.data <- as_Spatial(map.data)
+  map.data@data$ID <- row.names(map.data@data)
+  stat.data <- map.data@data   
+  map.data <- create_map_table(map.data, IDcolumn = 'ID')
+  map.link <- c('ID', 'ID')
+  
+  # use default method
+  mmplot.default(map.data, stat.data, map.link = map.link, ...)
+  
+}
+
+#' @rdname mmplot
+#' 
+#' @export
+#' 
 #' @method mmplot default
 mmplot.default <- function(map.data, 
                            stat.data, 
@@ -244,6 +266,14 @@ mmplot.default <- function(map.data,
                            plot.panel.margins = c(0,0,1,0), 
                            ...
 ){		
+  
+  # stop if 'median' is a column name in stat.data
+  if('median' %in% names(stat.data))
+    stop('"median" cannot be a column name in stat.data')
+  
+  # stop if 'median' is used in panel.data
+  if('median' %in% unlist(panel.data))
+    stop('"median" cannot be used in panel.data')
   
   # rename function inputs
   dStats <- stat.data
