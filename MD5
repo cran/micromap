@@ -1,11 +1,11 @@
-3402e3d869487f0f33cf615e467deb3a *DESCRIPTION
+6c8a688c0120ef3c0da3f48723421023 *DESCRIPTION
 395b7c3abbed0833954602e0f759e7c0 *NAMESPACE
 7e50b3bbf5132c4eb1024b9f7b2d5d38 *R/AttDefaults.r
 cf3679aa7e407ff8424d02dca1331688 *R/CreateMapTable.r
 1802de188454e44b67f5e57ba8865a8a *R/DataReorg.r
 b4a3b90024e2c7c2849bfd686ee1be57 *R/GraphCleaning.r
-09c7ab4c10b0b652f58336f9c314eaae *R/MapGraphs.r
-9cbaa4c76721723f735ff9fb06bad3f9 *R/PanelBuilding.r
+e39eb50beadd68c90ecd81dffaf6824a *R/MapGraphs.r
+5dde5377b6404cae46594e8984bfffd3 *R/PanelBuilding.r
 6ed09c35f70bfc0c65dd8732ec31586a *R/UtilityFunctions.r
 5e3377e9a52b94327391bb01b9484616 *R/lmGroupedPlot.r
 72462600278ea41e206ce99de09f5dd7 *R/lmPlot.r
@@ -20,7 +20,7 @@ dacf6b4bbf31101195efce3643900906 *data/lungMort.rda
 f066fe4d4a66180e88b2c12fac9f3695 *data/statesFlatfile.rda
 ef7e4cac14e82a0d8e527bc7a542ae65 *data/vegCov.rda
 b2e3faf54d1956c9ce5b1bf8f130fefc *inst/CITATION
-9232f1d7b48196ad8956bf18c5be4673 *inst/NEWS.Rd
+aaed0ed9ddea3000938d7f303d3189b3 *inst/NEWS.Rd
 72218ee125a7580eb51188586b8e7981 *inst/doc/Introduction_Guide.R
 500661a25b1e24f668facb07c9d5ef6c *inst/doc/Introduction_Guide.Rnw
 fdbea6dada7a26b9f30ac261f0d4bfec *inst/doc/Introduction_Guide.pdf
